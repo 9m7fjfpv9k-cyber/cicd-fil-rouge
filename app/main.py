@@ -1,8 +1,12 @@
 """TaskFlow : une petite API de gestion de tâches."""
 
+import asyncio
+import random
+import socket
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app import db, settings
@@ -16,6 +20,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.APP_NAME, version=settings.VERSION, lifespan=lifespan)
+
+
+@app.middleware("http")
+async def inject_faults(request: Request, call_next):
+    """Simule une version défaillante : /health reste sain, les utilisateurs souffrent."""
+    if request.url.path != "/health":
+        if settings.LATENCY_MS:
+            await asyncio.sleep(settings.LATENCY_MS / 1000)
+        if settings.FAILURE_RATE and random.random() < settings.FAILURE_RATE:
+            return JSONResponse(status_code=500, content={"detail": "Erreur interne"})
+    return await call_next(request)
 
 
 class TaskIn(BaseModel):
@@ -39,9 +54,14 @@ def _get_or_404(conn, task_id: int):
     return row
 
 
+@app.get("/")
+def root():
+    return {"app": settings.APP_NAME, "version": settings.VERSION, "pod": socket.gethostname()}
+
+
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": settings.VERSION}
+    return {"status": "ok", "version": settings.VERSION, "pod": socket.gethostname()}
 
 
 @app.get("/tasks", response_model=list[Task])
