@@ -11,6 +11,8 @@ test
 
 Prérequis : Python 3.10 ou plus récent.
 
+
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate          # Windows : .venv\Scripts\activate
