@@ -7,6 +7,8 @@ qui teste, construit, sécurise et livre l'application.
 
 ## Lancer l'API en local
 
+test
+
 Prérequis : Python 3.10 ou plus récent.
 
 ```bash
