@@ -1,4 +1,4 @@
-# Publie les 4 images TaskFlow utilisées en J2 et J3 (M2).
+# Publie les 5 images TaskFlow utilisées en J2 et J3 (M2).
 # À lancer à la main : onglet Actions → « Publier les images TaskFlow » → Run workflow.
 name: Publier les images TaskFlow
 
@@ -30,6 +30,10 @@ jobs:
           - tag: "2.1.0"
             failure_rate: "0.3"
             latency_ms: "300"
+          # Correctif publié au J3 : version saine qui succède à la 2.1.0.
+          - tag: "2.2.0"
+            failure_rate: "0"
+            latency_ms: "0"
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-qemu-action@v4
